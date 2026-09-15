@@ -140,3 +140,109 @@ def test_location_search_api_failure():
     with patch("httpx.AsyncClient.get", side_effect=RequestError("Network error")):
         response = client.get("/bonus/location?query=Los%20Angeles")
         assert response.status_code == 502
+
+# --- Irrigation Tests ---
+
+def test_irrigation_rain():
+    mock_json = {
+        "current": {"temperature_2m": 20.0, "relative_humidity_2m": 50, "precipitation": 1.5, "wind_speed_10m": 10.0},
+        "daily": {"precipitation_probability_max": [60], "temperature_2m_max": [25.0], "temperature_2m_min": [15.0]}
+    }
+    class MockResponse:
+        def json(self): return mock_json
+        def raise_for_status(self): pass
+
+    with patch("httpx.AsyncClient.get") as mock_get:
+        mock_get.return_value = MockResponse()
+        response = client.post("/bonus/irrigation", json={"latitude": 34.0, "longitude": -118.0})
+        assert response.status_code == 200
+        assert response.json()["irrigation_status"] == "PAUSE_IRRIGATION"
+
+def test_irrigation_high_wind():
+    mock_json = {
+        "current": {"temperature_2m": 20.0, "relative_humidity_2m": 50, "precipitation": 0.0, "wind_speed_10m": 40.0},
+        "daily": {"precipitation_probability_max": [0], "temperature_2m_max": [25.0], "temperature_2m_min": [15.0]}
+    }
+    class MockResponse:
+        def json(self): return mock_json
+        def raise_for_status(self): pass
+
+    with patch("httpx.AsyncClient.get") as mock_get:
+        mock_get.return_value = MockResponse()
+        response = client.post("/bonus/irrigation", json={"latitude": 34.0, "longitude": -118.0})
+        assert response.status_code == 200
+        assert response.json()["irrigation_status"] == "RESTRICT_OVERHEAD_IRRIGATION"
+
+def test_irrigation_high_heat():
+    mock_json = {
+        "current": {"temperature_2m": 36.0, "relative_humidity_2m": 50, "precipitation": 0.0, "wind_speed_10m": 10.0},
+        "daily": {"precipitation_probability_max": [0], "temperature_2m_max": [38.0], "temperature_2m_min": [15.0]}
+    }
+    class MockResponse:
+        def json(self): return mock_json
+        def raise_for_status(self): pass
+
+    with patch("httpx.AsyncClient.get") as mock_get:
+        mock_get.return_value = MockResponse()
+        response = client.post("/bonus/irrigation", json={"latitude": 34.0, "longitude": -118.0})
+        assert response.status_code == 200
+        assert response.json()["irrigation_status"] == "HEAT_CAUTION"
+
+def test_irrigation_normal():
+    mock_json = {
+        "current": {"temperature_2m": 20.0, "relative_humidity_2m": 50, "precipitation": 0.0, "wind_speed_10m": 10.0},
+        "daily": {"precipitation_probability_max": [0], "temperature_2m_max": [25.0], "temperature_2m_min": [15.0]}
+    }
+    class MockResponse:
+        def json(self): return mock_json
+        def raise_for_status(self): pass
+
+    with patch("httpx.AsyncClient.get") as mock_get:
+        mock_get.return_value = MockResponse()
+        response = client.post("/bonus/irrigation", json={"latitude": 34.0, "longitude": -118.0})
+        assert response.status_code == 200
+        assert response.json()["irrigation_status"] == "NO_WEATHER_TRIGGER"
+
+def test_irrigation_rain_wins_over_heat():
+    mock_json = {
+        "current": {"temperature_2m": 36.0, "relative_humidity_2m": 50, "precipitation": 2.0, "wind_speed_10m": 10.0},
+        "daily": {"precipitation_probability_max": [70], "temperature_2m_max": [38.0], "temperature_2m_min": [15.0]}
+    }
+    class MockResponse:
+        def json(self): return mock_json
+        def raise_for_status(self): pass
+
+    with patch("httpx.AsyncClient.get") as mock_get:
+        mock_get.return_value = MockResponse()
+        response = client.post("/bonus/irrigation", json={"latitude": 34.0, "longitude": -118.0})
+        assert response.status_code == 200
+        assert response.json()["irrigation_status"] == "PAUSE_IRRIGATION"
+
+def test_irrigation_wind_wins_over_heat():
+    mock_json = {
+        "current": {"temperature_2m": 36.0, "relative_humidity_2m": 50, "precipitation": 0.0, "wind_speed_10m": 40.0},
+        "daily": {"precipitation_probability_max": [0], "temperature_2m_max": [38.0], "temperature_2m_min": [15.0]}
+    }
+    class MockResponse:
+        def json(self): return mock_json
+        def raise_for_status(self): pass
+
+    with patch("httpx.AsyncClient.get") as mock_get:
+        mock_get.return_value = MockResponse()
+        response = client.post("/bonus/irrigation", json={"latitude": 34.0, "longitude": -118.0})
+        assert response.status_code == 200
+        assert response.json()["irrigation_status"] == "RESTRICT_OVERHEAD_IRRIGATION"
+
+def test_irrigation_api_timeout():
+    with patch("httpx.AsyncClient.get", side_effect=TimeoutException("Timeout")):
+        response = client.post("/bonus/irrigation", json={"latitude": 34.0, "longitude": -118.0})
+        assert response.status_code == 504
+
+def test_irrigation_api_failure():
+    with patch("httpx.AsyncClient.get", side_effect=RequestError("Network error")):
+        response = client.post("/bonus/irrigation", json={"latitude": 34.0, "longitude": -118.0})
+        assert response.status_code == 502
+
+def test_irrigation_invalid_coordinates():
+    response = client.post("/bonus/irrigation", json={"latitude": 100.0, "longitude": -118.0})
+    assert response.status_code == 422

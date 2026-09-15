@@ -4,11 +4,20 @@ from app.schemas import (
     BonusAnalyzeResponse,
     WeatherRequest,
     WeatherResponse,
-    LocationSearchResponse
+    LocationSearchResponse,
+    IrrigationRequest,
+    IrrigationResponse
 )
-from app.services import weather_service, geocoding_service
+from app.services import weather_service, geocoding_service, irrigation_service
 
 router = APIRouter()
+
+@router.post("/irrigation", response_model=IrrigationResponse)
+async def get_irrigation(request: IrrigationRequest):
+    """
+    Get qualitative rule-based irrigation advice based on current weather and forecast.
+    """
+    return await irrigation_service.get_irrigation_recommendation(request)
 
 @router.get("/location", response_model=LocationSearchResponse)
 async def search_location(query: str = Query(..., description="Location name to search for")):

@@ -77,6 +77,52 @@ Returns up to 5 location matches to allow disambiguation.
 - `502 Bad Gateway`: External geocoding API failed.
 - `504 Gateway Timeout`: External geocoding API request timed out.
 
+---
+
+### Endpoint
+`POST /bonus/irrigation`
+
+### Request Payload (Expected from Main System)
+
+Requests qualitative weather-based irrigation advice.
+
+```json
+{
+  "latitude": "float (required) - Latitude of the farm (-90.0 to 90.0)",
+  "longitude": "float (required) - Longitude of the farm (-180.0 to 180.0)",
+  "crop": "string (optional) - The crop name, currently accepted for future extensibility"
+}
+```
+
+### Response Payload (From Bonus Module API)
+
+Returns rule-based, qualitative advice prioritizing rain, high winds, and heat.
+
+```json
+{
+  "irrigation_status": "PAUSE_IRRIGATION",
+  "primary_driver": "Natural Precipitation",
+  "recommendation_note": "Rain is likely today. Consider delaying irrigation and reassessing after rainfall.",
+  "reasons": [
+    "Precipitation probability is 86%"
+  ],
+  "limitations": "Weather-based qualitative guidance only; soil moisture, crop stage and irrigation system are not considered."
+}
+```
+
+**Possible `irrigation_status` values:**
+- `PAUSE_IRRIGATION` (Triggers on high rain probability or current rain)
+- `RESTRICT_OVERHEAD_IRRIGATION` (Triggers on high winds >= 35 km/h)
+- `HEAT_CAUTION` (Triggers on extreme temperatures >= 35°C)
+- `NO_WEATHER_TRIGGER` (Normal conditions)
+
+> **Note**: The decision logic relies on prototype engineering assumptions, not universally validated agronomic thresholds. The module does not calculate exact water quantities.
+
+### Error Behavior
+- `422 Unprocessable Entity`: Invalid latitude/longitude format or out of bounds.
+- `502 Bad Gateway`: External weather API failed.
+- `504 Gateway Timeout`: External weather API request timed out.
+
 ### Endpoint
 `POST /bonus/weather`
 

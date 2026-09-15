@@ -1,6 +1,18 @@
 from pydantic import BaseModel, Field
 from typing import Optional
 
+class IrrigationRequest(BaseModel):
+    latitude: float = Field(..., ge=-90.0, le=90.0, description="Latitude of the farm")
+    longitude: float = Field(..., ge=-180.0, le=180.0, description="Longitude of the farm")
+    crop: Optional[str] = Field("Generic", description="The crop name")
+
+class IrrigationResponse(BaseModel):
+    irrigation_status: str = Field(..., description="Calculated status e.g., PAUSE_IRRIGATION")
+    primary_driver: str = Field(..., description="Primary weather driver for the recommendation")
+    recommendation_note: str = Field(..., description="Detailed recommendation note")
+    reasons: list[str] = Field(..., description="List of specific reasons based on weather values")
+    limitations: str = Field(..., description="Explicit limitations disclaimer")
+
 class LocationResult(BaseModel):
     name: str = Field(..., description="City or location name")
     admin1: Optional[str] = Field(None, description="State or region")

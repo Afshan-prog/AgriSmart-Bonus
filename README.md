@@ -31,6 +31,8 @@ This is a NEW, independent repository. It is currently a skeleton project design
 - `GET /health`: Health check
 - `POST /bonus/analyze`: Placeholder endpoint for bonus module processing.
 - `POST /bonus/weather`: Weather Intelligence module (Requires `latitude` and `longitude`).
+- `GET /bonus/location`: Location Search / Geocoding module.
+- `POST /bonus/irrigation`: Smart Irrigation rule-based module.
 
 ## Testing
 
