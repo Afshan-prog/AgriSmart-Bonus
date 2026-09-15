@@ -27,3 +27,31 @@ Bonus service:
 - Weather intelligence
 - Weather-aware irrigation guidance
 - Farmer-friendly AI explanation
+  
+## Endpoints
+
+- `GET /health` — Service health check
+- `GET /bonus/location` — Location search / geocoding
+- `POST /bonus/weather` — Weather Intelligence
+- `POST /bonus/irrigation` — Smart Irrigation
+- `POST /bonus/assistant` — Farmer Assistant
+- `POST /bonus/analyze` — Reserved integration endpoint
+
+### Farmer Assistant
+
+The Farmer Assistant generates a concise, farmer-friendly explanation
+using structured information from:
+
+- Disease prediction
+- Model confidence
+- Weather conditions
+- Irrigation recommendation
+
+The assistant does not provide pesticide names, chemical dosages,
+application schedules, or treat an AI prediction as a confirmed diagnosis.
+
+If the external LLM service is unavailable, the API returns a safe
+fallback response.
+
+
+
