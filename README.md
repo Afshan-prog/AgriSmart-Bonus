@@ -1,49 +1,29 @@
 # AgriSmart Bonus Module API
 
-This is an independent, production-oriented FastAPI service for the AgriSmart AI SIH 2026 project. 
-It houses the future bonus modules:
+An independent FastAPI service containing additional intelligence modules
+for the AgriSmart AI SIH 2026 project.
+
+## Implemented Modules
+
 1. Weather Intelligence
-2. Smart Irrigation
-3. Sustainability Score
+2. Location Search / Geocoding
+3. Smart Irrigation
 4. Farmer Assistant
-5. Agentic Advisor
 
-## IMPORTANT
+The service is designed to integrate with the main AgriSmart AI system
+through structured API contracts.
 
-This is a NEW, independent repository. It is currently a skeleton project designed to eventually integrate with the main AgriSmart-AI system via a well-defined API contract. 
-- It does not contain mock or fake prediction responses.
-- It does not depend on the main system directly.
-- The bonus processing pipelines and external integrations are not yet implemented.
+## Architecture
 
-## Running the Application
+The bonus service is independent of the disease-classification model.
+It consumes structured prediction and contextual data rather than loading
+or modifying the ML model itself.
 
-1. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-2. Run the development server:
-   ```bash
-   uvicorn app.main:app --reload
-   ```
+Main application:
+- Disease prediction
 
-## Endpoints
-
-- `GET /health`: Health check
-- `POST /bonus/analyze`: Placeholder endpoint for bonus module processing.
-- `POST /bonus/weather`: Weather Intelligence module (Requires `latitude` and `longitude`).
-- `GET /bonus/location`: Location Search / Geocoding module.
-- `POST /bonus/irrigation`: Smart Irrigation rule-based module.
-- `POST /bonus/assistant`: Farmer Assistant module (Natural language advisory powered by LLM).
-
-## Testing
-
-Run the automated test suite (with mocked external APIs):
-```bash
-pytest -v
-```
-
-To test the live Weather Intelligence endpoint against the real Open-Meteo API:
-```bash
-# Ensure the server is running
-curl -X POST "http://127.0.0.1:8000/bonus/weather" -H "Content-Type: application/json" -d "{\"latitude\": 34.05, \"longitude\": -118.24}"
-```
+Bonus service:
+- Location search
+- Weather intelligence
+- Weather-aware irrigation guidance
+- Farmer-friendly AI explanation
