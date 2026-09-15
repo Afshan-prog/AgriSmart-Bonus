@@ -6,11 +6,20 @@ from app.schemas import (
     WeatherResponse,
     LocationSearchResponse,
     IrrigationRequest,
-    IrrigationResponse
+    IrrigationResponse,
+    AssistantRequest,
+    AssistantResponse
 )
-from app.services import weather_service, geocoding_service, irrigation_service
+from app.services import weather_service, geocoding_service, irrigation_service, farmer_assistant_service
 
 router = APIRouter()
+
+@router.post("/assistant", response_model=AssistantResponse)
+async def get_assistant(request: AssistantRequest):
+    """
+    Get natural language explanation and low-risk advice from the Farmer Assistant LLM.
+    """
+    return await farmer_assistant_service.get_assistant_advice(request)
 
 @router.post("/irrigation", response_model=IrrigationResponse)
 async def get_irrigation(request: IrrigationRequest):

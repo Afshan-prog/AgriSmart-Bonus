@@ -66,3 +66,27 @@ class BonusAnalyzeResponse(BaseModel):
     # sustainability_score: Optional[dict] = None
     # farmer_assistant: Optional[dict] = None
     # agentic_advisor: Optional[dict] = None
+
+class AssistantRequest(BaseModel):
+    crop: Optional[str] = Field("Unknown", description="The crop name")
+    disease_prediction: Optional[str] = Field("Unknown", description="The detected disease name")
+    confidence: Optional[float] = Field(None, description="Confidence score of the prediction")
+    temperature_c: Optional[float] = Field(None, description="Current temperature in Celsius")
+    humidity_percent: Optional[float] = Field(None, description="Current relative humidity percentage")
+    rain_probability: Optional[int] = Field(None, description="Probability of precipitation")
+    irrigation_status: Optional[str] = Field(None, description="Irrigation status recommendation")
+    irrigation_driver: Optional[str] = Field(None, description="Primary driver for irrigation status")
+
+class AssistantLLMResponse(BaseModel):
+    summary: str
+    what_it_means: str
+    recommended_actions: list[str]
+    weather_note: str
+    irrigation_note: str
+    warning: str
+    confidence_note: str
+
+class AssistantResponse(BaseModel):
+    status: str = Field(..., description="'success' or 'fallback'")
+    source: str = Field(..., description="'llm' or 'deterministic'")
+    content: AssistantLLMResponse

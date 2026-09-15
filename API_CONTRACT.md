@@ -167,3 +167,49 @@ Returns real-time weather and forecast data interpreted for agriculture.
 - `422 Unprocessable Entity`: Invalid latitude/longitude format or out of bounds.
 - `502 Bad Gateway`: External weather API failed or returned an invalid response.
 - `504 Gateway Timeout`: External weather API request timed out.
+
+### Endpoint
+`POST /bonus/assistant`
+
+### Request Payload (Expected from Main System)
+
+The request should provide all available contextual data for the LLM to explain.
+
+```json
+{
+  "crop": "string (optional) - The crop name",
+  "disease_prediction": "string (optional) - The detected disease name",
+  "confidence": "float (optional) - Confidence score of the prediction",
+  "temperature_c": "float (optional) - Current temperature in Celsius",
+  "humidity_percent": "float (optional) - Current relative humidity percentage",
+  "rain_probability": "int (optional) - Probability of precipitation",
+  "irrigation_status": "string (optional) - Irrigation status recommendation",
+  "irrigation_driver": "string (optional) - Primary driver for irrigation status"
+}
+```
+
+### Response Payload (From Bonus Module API)
+
+Returns a natural language explanation and low-risk advice from the Farmer Assistant LLM.
+
+```json
+{
+  "status": "success",
+  "source": "llm",
+  "content": {
+    "summary": "AI suggests Corn has Northern Leaf Blight.",
+    "what_it_means": "The warm wet weather favors this disease.",
+    "recommended_actions": [
+      "Monitor leaves for lesions",
+      "Ensure good airflow"
+    ],
+    "weather_note": "High rain chance today.",
+    "irrigation_note": "Irrigation is paused due to expected rain.",
+    "warning": "This is an AI prediction, not a confirmed diagnosis.",
+    "confidence_note": "The model is highly confident, but monitoring is advised."
+  }
+}
+```
+
+### Error Behavior
+- `200 OK` (with `"status": "fallback"`, `"source": "deterministic"`): Returned if the LLM API fails, times out, rate limits, or generates unsafe content. It returns a safe, deterministic JSON response instead of crashing.

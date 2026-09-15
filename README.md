@@ -33,6 +33,7 @@ This is a NEW, independent repository. It is currently a skeleton project design
 - `POST /bonus/weather`: Weather Intelligence module (Requires `latitude` and `longitude`).
 - `GET /bonus/location`: Location Search / Geocoding module.
 - `POST /bonus/irrigation`: Smart Irrigation rule-based module.
+- `POST /bonus/assistant`: Farmer Assistant module (Natural language advisory powered by LLM).
 
 ## Testing
 
